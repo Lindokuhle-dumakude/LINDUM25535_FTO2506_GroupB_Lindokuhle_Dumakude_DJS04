@@ -1,35 +1,40 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+// React imports
+import { PodcastProvider } from "./context/PodcastContext.jsx";
 
-function App() {
-  const [count, setCount] = useState(0)
+// Components
+import Header from "./components/Header.jsx";
+import SearchBar from "./components/SearchBar.jsx";
+import SortSelect from "./components/SortSelect.jsx";
+import GenreFilter from "./components/GenreFilter.jsx";
+import PodcastGrid from "./components/PodcastGrid.jsx";
+import Pagination from "./components/Pagination.jsx";
+import Loading from "./components/Loading.jsx";
+import ErrorMessage from "./components/ErrorMessage.jsx";
 
+// Styles
+import "./index.css";
+
+/**
+ * - Wraps the UI with PodcastProvider so all components share state
+ * - Displays search, sort, filter, podcasts, and pagination
+ */
+export default function App() {
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+    <PodcastProvider>
+      <div className="app-container">
+        <Header />
+        <main>
+          <div className="controls">
+            <SearchBar />
+            <SortSelect />
+            <GenreFilter />
+          </div>
+          <ErrorMessage />
+          <Loading />
+          <PodcastGrid />
+          <Pagination />
+        </main>
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    </PodcastProvider>
+  );
 }
-
-export default App
