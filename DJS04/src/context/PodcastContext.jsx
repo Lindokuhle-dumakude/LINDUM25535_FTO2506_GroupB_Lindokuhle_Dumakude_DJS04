@@ -86,3 +86,14 @@ export const PodcastProvider = ({ children }) => {
     </PodcastContext.Provider>
   );
 };
+
+/**
+ * Custom hook for accessing the podcast context.
+ * Simplifies usage of context in components.
+ *
+ * @returns {PodcastState & {dispatch: Function}} Current podcast state and dispatch function.
+ */
+export const usePodcasts = () => {
+  const { state, dispatch } = useContext(PodcastContext);
+  return { ...state, dispatch };
+};
