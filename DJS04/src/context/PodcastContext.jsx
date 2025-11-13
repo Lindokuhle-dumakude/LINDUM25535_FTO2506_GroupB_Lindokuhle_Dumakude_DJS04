@@ -55,3 +55,34 @@ function reducer(state, action) {
       return state;
   }
 }
+
+/**
+ * Context provider component that supplies podcast state and actions.
+ * Fetches podcast data on mount and exposes state + dispatch.
+ *
+ * @component
+ * @param {{children: React.ReactNode}} props - The nested child components.
+ * @returns {JSX.Element} Context provider wrapping its children.
+ */
+export const PodcastProvider = ({ children }) => {
+  const [state, dispatch] = useReducer(reducer, initialState);
+
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        const data = await fetchPodcasts();
+        dispatch({ type: "LOAD_SUCCESS", payload: data });
+      } catch (error) {
+        dispatch({ type: "ERROR", payload: error.message });
+      }
+    };
+
+    loadData();
+  }, []);
+
+  return (
+    <PodcastContext.Provider value={{ state, dispatch }}>
+      {children}
+    </PodcastContext.Provider>
+  );
+};
