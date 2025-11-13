@@ -30,3 +30,28 @@ const initialState = {
   page: 1,
   perPage: 6,
 };
+
+/**
+ * Reducer to handle podcast-related state updates.
+ * @param {PodcastState} state - Current state.
+ * @param {{type: string, payload?: any}} action - Action with a type and optional payload.
+ * @returns {PodcastState} New updated state.
+ */
+function reducer(state, action) {
+  switch (action.type) {
+    case "LOAD_SUCCESS":
+      return { ...state, podcasts: action.payload, loading: false };
+    case "ERROR":
+      return { ...state, error: action.payload, loading: false };
+    case "SEARCH":
+      return { ...state, search: action.payload };
+    case "FILTER_GENRE":
+      return { ...state, genre: action.payload };
+    case "SORT":
+      return { ...state, sort: action.payload };
+    case "PAGE":
+      return { ...state, page: action.payload };
+    default:
+      return state;
+  }
+}
