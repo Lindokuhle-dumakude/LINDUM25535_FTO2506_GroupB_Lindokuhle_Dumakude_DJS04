@@ -1,48 +1,71 @@
 // src/components/Pagination.jsx
 
-import { usePodcasts } from "../context/PodcastContext.jsx";
-import "../styles/Pagination.css";
+import "./styles/Pagination.css";
 
 /**
- * Pagination component for navigating through paged podcast results.
- *
- * Uses the global podcast context to read and update the current page.
- * Dispatches "PAGE" actions to the reducer to change state.
+ * Pagination component provides page navigation controls
+ * for lists or collections. It supports moving between pages
+ * and highlights the currently active page.
  *
  * @component
- * @example
- * return (
- *   <Pagination />
- * )
- *
- * @returns {JSX.Element} The pagination controls with Prev/Next buttons.
+ * @param {Object} props - Component props.
+ * @param {number} props.currentPage - The active page index (1-based).
+ * @param {number} props.totalPages - Total number of pages available.
+ * @param {function(number): void} props.onPageChange - Callback fired when the page changes.
+ * @returns {JSX.Element} A pagination control UI.
  */
-export default function Pagination() {
-  const { page, dispatch } = usePodcasts();
-
+export default function Pagination({ currentPage, totalPages, onPageChange }) {
   /**
-   * Go to the previous page if not already on the first page.
-   * @function
+   * Safely navigates to a specific page number.
+   * Prevents navigation beyond page bounds.
+   *
+   * @param {number} page - The page number to navigate to.
    */
-  const handlePrev = () => {
-    if (page > 1) dispatch({ type: "PAGE", payload: page - 1 });
+  const goToPage = (page) => {
+    if (page >= 1 && page <= totalPages) {
+      onPageChange(page);
+    }
   };
 
   /**
-   * Go to the next page.
-   * @function
+   * Generates an array of page numbers based on total pages.
+   * Example: totalPages = 5 → [1, 2, 3, 4, 5]
+   *
+   * @type {number[]}
    */
-  const handleNext = () => {
-    dispatch({ type: "PAGE", payload: page + 1 });
-  };
+  const pages = Array.from({ length: totalPages }, (_, i) => i + 1);
 
   return (
     <div className="pagination">
-      <button onClick={handlePrev} disabled={page === 1}>
-        ← Prev
+      <button
+        className="pagination-btn"
+        disabled={currentPage === 1}
+        onClick={() => goToPage(currentPage - 1)}
+      >
+        Previous
       </button>
-      <span>Page {page}</span>
-      <button onClick={handleNext}>Next →</button>
+
+      <div className="pagination-pages">
+        {pages.map((page) => (
+          <button
+            key={page}
+            className={`pagination-page ${
+              page === currentPage ? "active" : ""
+            }`}
+            onClick={() => goToPage(page)}
+          >
+            {page}
+          </button>
+        ))}
+      </div>
+
+      <button
+        className="pagination-btn"
+        disabled={currentPage === totalPages}
+        onClick={() => goToPage(currentPage + 1)}
+      >
+        Next
+      </button>
     </div>
   );
 }
