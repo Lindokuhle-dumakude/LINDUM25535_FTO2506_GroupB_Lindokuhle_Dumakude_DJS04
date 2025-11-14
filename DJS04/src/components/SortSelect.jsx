@@ -1,40 +1,42 @@
 // src/components/SortSelect.jsx
 
-import { usePodcasts } from "../context/PodcastContext.jsx";
+import { usePodcasts } from "../context/PodcastContext";
 import "../styles/SortSelect.css";
 
 /**
- * SortSelect component for sorting podcast results.
- *
- * Provides a dropdown menu allowing users to sort podcasts
- * alphabetically (A–Z or Z–A) or by newest release.
+ * SortSelect component provides a dropdown menu
+ * for selecting the sort order of podcasts. It reads
+ * and updates the global sort order stored in the PodcastContext.
  *
  * @component
- * @example
- * return (
- *   <SortSelect />
- * )
- *
- * @returns {JSX.Element} Controlled <select> element for sort order.
+ * @returns {JSX.Element} A dropdown allowing users to sort podcasts.
  */
 export default function SortSelect() {
-  const { sort, dispatch } = usePodcasts();
+  const { sortOrder, setSortOrder } = usePodcasts();
 
   /**
-   * Handle change in selected sort option.
-   * Dispatches a SORT action to update global state.
+   * Handles changes to the sort dropdown by updating
+   * the global sort order in context.
    *
-   * @param {React.ChangeEvent<HTMLSelectElement>} e - The change event.
+   * @param {React.ChangeEvent<HTMLSelectElement>} e - The select change event.
    */
   const handleChange = (e) => {
-    dispatch({ type: "SORT", payload: e.target.value });
+    setSortOrder(e.target.value);
   };
 
   return (
-    <select className="sort-select" value={sort} onChange={handleChange}>
-      <option value="title-asc">Title (A-Z)</option>
-      <option value="title-desc">Title (Z-A)</option>
-      <option value="newest">Newest</option>
-    </select>
+    <div className="sort-select">
+      <label className="sort-label">Sort by:</label>
+
+      <select
+        className="sort-dropdown"
+        value={sortOrder}
+        onChange={handleChange}
+      >
+        <option value="az">Title (A → Z)</option>
+        <option value="za">Title (Z → A)</option>
+        <option value="newest">Newest</option>
+      </select>
+    </div>
   );
 }
