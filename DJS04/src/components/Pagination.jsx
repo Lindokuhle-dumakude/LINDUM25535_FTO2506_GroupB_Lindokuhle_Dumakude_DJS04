@@ -4,7 +4,7 @@ import "./styles/Pagination.css";
 
 /**
  * Pagination component provides page navigation controls
- * for lists or collections. It supports moving between pages
+ * for paged podcast results. It supports moving between pages
  * and highlights the currently active page.
  *
  * @component
@@ -29,7 +29,6 @@ export default function Pagination({ currentPage, totalPages, onPageChange }) {
 
   /**
    * Generates an array of page numbers based on total pages.
-   * Example: totalPages = 5 → [1, 2, 3, 4, 5]
    *
    * @type {number[]}
    */
