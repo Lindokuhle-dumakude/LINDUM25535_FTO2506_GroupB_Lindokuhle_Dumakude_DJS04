@@ -4,35 +4,32 @@ import { usePodcasts } from "../context/PodcastContext";
 import "../styles/SortSelect.css";
 
 /**
- * SortSelect component provides a dropdown menu
- * for selecting the sort order of podcasts. It reads
- * and updates the global sort order stored in the PodcastContext.
+ * Dropdown component for selecting the sorting method of podcasts.
+ *
+ * Connects to the global podcast state via `usePodcasts` context.
+ * Dispatches a sort action whenever the selection changes.
  *
  * @component
- * @returns {JSX.Element} A dropdown allowing users to sort podcasts.
+ * @returns {JSX.Element} Sorting dropdown UI
  */
 export default function SortSelect() {
-  const { sortOrder, setSortOrder } = usePodcasts();
+  const { sort, dispatch } = usePodcasts();
 
   /**
-   * Handles changes to the sort dropdown by updating
-   * the global sort order in context.
+   * Handles change events on the sort dropdown.
+   * Dispatches an action to update the sort order in global state.
    *
-   * @param {React.ChangeEvent<HTMLSelectElement>} e - The select change event.
+   * @param {React.ChangeEvent<HTMLSelectElement>} e - The change event
    */
   const handleChange = (e) => {
-    setSortOrder(e.target.value);
+    dispatch({ type: "SORT", payload: e.target.value });
   };
 
   return (
     <div className="sort-select">
       <label className="sort-label">Sort by:</label>
 
-      <select
-        className="sort-dropdown"
-        value={sortOrder}
-        onChange={handleChange}
-      >
+      <select className="sort-dropdown" value={sort} onChange={handleChange}>
         <option value="az">Title (A → Z)</option>
         <option value="za">Title (Z → A)</option>
         <option value="newest">Newest</option>
