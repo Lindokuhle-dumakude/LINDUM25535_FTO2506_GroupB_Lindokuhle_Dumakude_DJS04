@@ -1,0 +1,25 @@
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.2rem 2rem;
+  background: #ffffff;
+  border-bottom: 1px solid #e3e3e3;
+}
+
+.podcastLogoAndTitle {
+  display: flex;
+  gap: 0.8rem;
+  align-items: center;
+}
+
+.podcastTitle {
+  font-size: 1.6rem;
+  font-weight: 600;
+}
+
+.podcastAppLogo {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+}
