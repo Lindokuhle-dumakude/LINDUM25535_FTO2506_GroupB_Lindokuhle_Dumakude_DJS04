@@ -5,44 +5,33 @@ import { genres } from "../utils/data";
 import "../styles/GenreFilter.css";
 
 /**
- * GenreFilter component provides a multi-select dropdown
- * for filtering podcasts by genre. It reads and updates
- * the selected genres in the global PodcastContext.
+ * Dropdown component for filtering podcasts by genre.
+ *
+ * Connects to the global podcast state via `usePodcasts` context.
+ * Updates the current genre selection in the global state when changed.
  *
  * @component
- * @returns {JSX.Element} A multi-select dropdown for filtering podcasts by genre.
+ * @returns {JSX.Element} Genre filter dropdown UI
  */
 export default function GenreFilter() {
-  const { selectedGenres, setSelectedGenres } = usePodcasts();
+  const { genre, dispatch } = usePodcasts();
 
   /**
-   * Handles changes to the genre dropdown by adding or removing
-   * the selected genre from the context state.
+   * Handles the change event on the genre dropdown.
+   * Dispatches an action to update the selected genre in global state.
    *
-   * @param {React.ChangeEvent<HTMLSelectElement>} e - The select change event.
+   * @param {React.ChangeEvent<HTMLSelectElement>} e - The change event
    */
-  function handleChange(e) {
-    const value = Number(e.target.value);
-
-    // Remove genre if already selected
-    if (selectedGenres.includes(value)) {
-      setSelectedGenres(selectedGenres.filter((g) => g !== value));
-    } else {
-      // Add genre if not selected
-      setSelectedGenres([...selectedGenres, value]);
-    }
-  }
+  const handleChange = (e) => {
+    dispatch({ type: "FILTER_GENRE", payload: Number(e.target.value) });
+  };
 
   return (
     <div className="genre-filter">
       <label className="genre-label">Filter by Genre:</label>
 
-      <select
-        className="genre-select"
-        multiple
-        value={selectedGenres}
-        onChange={handleChange}
-      >
+      <select className="genre-select" value={genre} onChange={handleChange}>
+        <option value="All">All</option>
         {genres.map((g) => (
           <option key={g.id} value={g.id}>
             {g.title}
