@@ -1,6 +1,6 @@
 // src/components/Pagination.jsx
 
-import "./styles/Pagination.css";
+import "../styles/Pagination.css";
 
 /**
  * Pagination component provides page navigation controls
