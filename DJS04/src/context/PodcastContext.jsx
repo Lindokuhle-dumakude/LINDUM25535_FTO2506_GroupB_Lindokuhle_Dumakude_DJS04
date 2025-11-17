@@ -1,99 +1,137 @@
 // src/context/PodcastContext.jsx
-import { createContext, useContext, useReducer, useEffect } from "react";
-import { fetchPodcasts } from "../api/podcastApi.js";
+import { createContext, useContext, useEffect, useState, useMemo } from "react";
+import { fetchPodcasts } from "../api/podcastApi";
+import { genres } from "../utils/data"; // maps genre IDs → titles
 
 /**
- * Global context for managing podcast-related state across the application.
- * @type {React.Context}
+ * React Context for managing podcast state globally.
+ * Provides podcasts data, filters, sorting, pagination, and loading/error states.
  */
 const PodcastContext = createContext();
 
 /**
- * Initial state for the podcast context.
- * @typedef {Object} PodcastState
- * @property {Array} podcasts - List of fetched podcast objects.
- * @property {boolean} loading - Indicates if data is currently loading.
- * @property {string|null} error - Error message if fetch fails.
- * @property {string} search - Current search query.
- * @property {string} genre - Selected genre filter.
- * @property {string} sort - Current sorting method.
- * @property {number} page - Current pagination page.
- * @property {number} perPage - Number of podcasts per page.
- */
-const initialState = {
-  podcasts: [],
-  loading: true,
-  error: null,
-  search: "",
-  genre: "All",
-  sort: "title",
-  page: 1,
-  perPage: 6,
-};
-
-/**
- * Reducer to handle podcast-related state updates.
- * @param {PodcastState} state - Current state.
- * @param {{type: string, payload?: any}} action - Action with a type and optional payload.
- * @returns {PodcastState} New updated state.
- */
-function reducer(state, action) {
-  switch (action.type) {
-    case "LOAD_SUCCESS":
-      return { ...state, podcasts: action.payload, loading: false };
-    case "ERROR":
-      return { ...state, error: action.payload, loading: false };
-    case "SEARCH":
-      return { ...state, search: action.payload };
-    case "FILTER_GENRE":
-      return { ...state, genre: action.payload };
-    case "SORT":
-      return { ...state, sort: action.payload };
-    case "PAGE":
-      return { ...state, page: action.payload };
-    default:
-      return state;
-  }
-}
-
-/**
- * Context provider component that supplies podcast state and actions.
- * Fetches podcast data on mount and exposes state + dispatch.
+ * Provider component that wraps the app and provides podcast state.
  *
- * @component
- * @param {{children: React.ReactNode}} props - The nested child components.
- * @returns {JSX.Element} Context provider wrapping its children.
+ * @param {Object} props
+ * @param {React.ReactNode} props.children - child components to render within the provider
+ * @returns {JSX.Element} Context provider wrapping children
  */
-export const PodcastProvider = ({ children }) => {
-  const [state, dispatch] = useReducer(reducer, initialState);
+export function PodcastProvider({ children }) {
+  // -----------------------------
+  // Core State
+  // -----------------------------
+  const [podcasts, setPodcasts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedGenres, setSelectedGenres] = useState([]);
+  const [sortOrder, setSortOrder] = useState("az"); // az | za | newest
+  const [currentPage, setCurrentPage] = useState(1);
+
+  const PODCASTS_PER_PAGE = 12;
+
+  // -----------------------------
+  // Fetch API
+  // -----------------------------
   useEffect(() => {
-    const loadData = async () => {
+    async function loadData() {
       try {
+        setLoading(true);
         const data = await fetchPodcasts();
-        dispatch({ type: "LOAD_SUCCESS", payload: data });
-      } catch (error) {
-        dispatch({ type: "ERROR", payload: error.message });
+        setPodcasts(data);
+        setError(null);
+      } catch (err) {
+        setError("Failed to load podcasts.");
+      } finally {
+        setLoading(false);
       }
-    };
+    }
 
     loadData();
   }, []);
 
+  // -----------------------------
+  // Search, Filter, Sort
+  // -----------------------------
+  const filteredAndSorted = useMemo(() => {
+    let temp = [...podcasts];
+
+    // Search
+    if (searchTerm.trim() !== "") {
+      temp = temp.filter((p) =>
+        p.title.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
+
+    // Filter by genre
+    if (selectedGenres.length > 0) {
+      temp = temp.filter((p) =>
+        p.genres?.some((g) => selectedGenres.includes(g))
+      );
+    }
+
+    // Sorting
+    if (sortOrder === "az") {
+      temp.sort((a, b) => a.title.localeCompare(b.title));
+    } else if (sortOrder === "za") {
+      temp.sort((a, b) => b.title.localeCompare(a.title));
+    } else if (sortOrder === "newest") {
+      temp.sort((a, b) => new Date(b.updated) - new Date(a.updated));
+    }
+
+    return temp;
+  }, [podcasts, searchTerm, selectedGenres, sortOrder]);
+
+  // -----------------------------
+  // Pagination
+  // -----------------------------
+  const totalPages = Math.ceil(filteredAndSorted.length / PODCASTS_PER_PAGE);
+
+  const visiblePodcasts = useMemo(() => {
+    const start = (currentPage - 1) * PODCASTS_PER_PAGE;
+    return filteredAndSorted.slice(start, start + PODCASTS_PER_PAGE);
+  }, [filteredAndSorted, currentPage]);
+
+  // Reset pagination when filters/search/sort change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, selectedGenres, sortOrder]);
+
+  // -----------------------------
+  // Context Value
+  // -----------------------------
+  const value = {
+    podcasts,
+    loading,
+    error,
+
+    searchTerm,
+    setSearchTerm,
+
+    selectedGenres,
+    setSelectedGenres,
+
+    sortOrder,
+    setSortOrder,
+
+    currentPage,
+    setCurrentPage,
+
+    totalPages,
+    visiblePodcasts,
+  };
+
   return (
-    <PodcastContext.Provider value={{ state, dispatch }}>
-      {children}
-    </PodcastContext.Provider>
+    <PodcastContext.Provider value={value}>{children}</PodcastContext.Provider>
   );
-};
+}
 
 /**
- * Custom hook for accessing the podcast context.
- * Simplifies usage of context in components.
+ * Custom hook to access PodcastContext state and actions.
  *
- * @returns {PodcastState & {dispatch: Function}} Current podcast state and dispatch function.
+ * @returns {Object} Podcast context value containing state and setters
  */
-export const usePodcasts = () => {
-  const { state, dispatch } = useContext(PodcastContext);
-  return { ...state, dispatch };
-};
+export function usePodcasts() {
+  return useContext(PodcastContext);
+}
