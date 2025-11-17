@@ -4,23 +4,25 @@ import { usePodcasts } from "../context/PodcastContext";
 import "../styles/SearchBar.css";
 
 /**
- * SearchBar component provides a controlled input field
- * for filtering podcast content. It reads and updates the
- * global search term stored in the PodcastContext.
+ * SearchBar component for filtering podcasts by search term.
+ *
+ * Connects to the global podcast state via `usePodcasts` context.
+ * Updates the global search value whenever the user types in the input.
  *
  * @component
- * @returns {JSX.Element} A search bar allowing users to filter podcasts.
+ * @returns {JSX.Element} Search input UI
  */
 export default function SearchBar() {
-  const { searchTerm, setSearchTerm } = usePodcasts();
+  const { search, dispatch } = usePodcasts();
 
   /**
-   * Handles input changes by updating the global search term.
+   * Handles input change events.
+   * Dispatches an action to update the global search term in PodcastContext.
    *
-   * @param {React.ChangeEvent<HTMLInputElement>} e - The input change event.
+   * @param {React.ChangeEvent<HTMLInputElement>} e - The input change event
    */
   const handleChange = (e) => {
-    setSearchTerm(e.target.value);
+    dispatch({ type: "SEARCH", payload: e.target.value });
   };
 
   return (
@@ -28,7 +30,7 @@ export default function SearchBar() {
       <input
         type="text"
         placeholder="Search podcasts..."
-        value={searchTerm}
+        value={search}
         onChange={handleChange}
         className="search-input"
       />
