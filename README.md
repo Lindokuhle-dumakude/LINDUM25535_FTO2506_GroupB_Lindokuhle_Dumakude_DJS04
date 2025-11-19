@@ -61,8 +61,8 @@ Navigate to http://localhost:5173 in your browser
 
 ## ⚡ Future Improvements
 
-- Fix Search functionality
-- Fix Genre Filter functionality
-- Fix Sort functionality
+- Fix Search functionality ✅
+- Fix Genre Filter functionality ✅
+- Fix Sort functionality ✅
 
 ---
