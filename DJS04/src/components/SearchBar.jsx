@@ -13,16 +13,16 @@ import "../styles/SearchBar.css";
  * @returns {JSX.Element} Search input UI
  */
 export default function SearchBar() {
-  const { search, dispatch } = usePodcasts();
+  const { searchTerm, setSearchTerm } = usePodcasts();
 
   /**
    * Handles input change events.
-   * Dispatches an action to update the global search term in PodcastContext.
+   *
    *
    * @param {React.ChangeEvent<HTMLInputElement>} e - The input change event
    */
   const handleChange = (e) => {
-    dispatch({ type: "SEARCH", payload: e.target.value });
+    setSearchTerm(e.target.value);
   };
 
   return (
@@ -30,7 +30,7 @@ export default function SearchBar() {
       <input
         type="text"
         placeholder="Search podcasts..."
-        value={search}
+        value={searchTerm}
         onChange={handleChange}
         className="search-input"
       />
